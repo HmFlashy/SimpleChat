@@ -158,7 +158,7 @@ public class ClientGraphics extends JFrame implements ChatIF, ActionListener, Ke
 				client.handleMessageFromClientUI("#logoff");
 				break;
 			case ToolsBar.PORT:
-				client.handleMessageFromClientUI("#sethost");
+				client.handleMessageFromClientUI("#getport");
 				break;
 			case ToolsBar.HOST:
 				client.handleMessageFromClientUI("#gethost");
