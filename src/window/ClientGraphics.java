@@ -1,8 +1,12 @@
+package window;
+
 import java.awt.BorderLayout;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -21,9 +25,14 @@ import javax.swing.JTextField;
 
 import client.ChatClient;
 import common.ChatIF;
+import component.ToolsBar;
 
-@SuppressWarnings("serial")
 public class ClientGraphics extends JFrame implements ChatIF, ActionListener, KeyListener {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/**
 	   * The default port to connect on.
@@ -36,15 +45,18 @@ public class ClientGraphics extends JFrame implements ChatIF, ActionListener, Ke
 	   * The instance of the client that created this ConsoleChat.
 	   */
 	  ChatClient client;
+	  int windowHeight, windowWidth;
 	  
 	  /**
 	   * Graphics component
 	   */
 	  FlowLayout layout;
 	  JTextArea writingarea;
-	  JPanel displayArea, actionArea, messageArea;
+	  JPanel displayArea, actionArea;
 	  JTextField textarea;
 	  JButton sendButton;
+	  JScrollPane scroll;
+	  ToolsBar toolsBar;
 	  
 	
 	public ClientGraphics(String host, int port) {
@@ -61,30 +73,36 @@ public class ClientGraphics extends JFrame implements ChatIF, ActionListener, Ke
 	}
 	
 	private void configWindow() {
-		this.setSize(500, 500);
+		Toolkit tk = Toolkit.getDefaultToolkit(); 
+		Dimension d = tk.getScreenSize(); 
+		int hauteurEcran = d.height; 
+		int largeurEcran = d.width; 
+		windowHeight = hauteurEcran/2;
+		windowWidth = largeurEcran/2;
+		setSize(windowWidth, windowHeight); 
 		this.setTitle("SimpleChat");
+		this.setResizable(false);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
 	private void initComponents() {
-		displayArea = new JPanel();
-		messageArea = new JPanel(new GridLayout(0, 1));
+		toolsBar = new ToolsBar(this);
 		actionArea = new JPanel(new BorderLayout());
-		JScrollPane scroll = new JScrollPane(messageArea);
-		displayArea.setMaximumSize(new Dimension(500, 400));
-		JScrollBar scrollbar = scroll.getVerticalScrollBar();
-		displayArea.add(messageArea, BorderLayout.WEST);
-		displayArea.add(scrollbar, BorderLayout.EAST);
-		this.add(scroll);
+		displayArea = new JPanel(new GridLayout(0,1, 0, 2));
+		scroll = new JScrollPane(displayArea);
+		scroll.setMaximumSize(new Dimension(500, 450));
+        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		writingarea = new JTextArea(1, 34);
 		writingarea.setBorder(BorderFactory.createLineBorder(Color.black));
 		sendButton = new JButton("Envoyer");
 		sendButton.addActionListener(this);
 		writingarea.addKeyListener(this);
-		this.add(displayArea, BorderLayout.NORTH);
-		actionArea.add(writingarea, BorderLayout.WEST);
+		actionArea.add(writingarea, BorderLayout.CENTER);
 		actionArea.add(sendButton, BorderLayout.EAST);
+		this.add(toolsBar, BorderLayout.NORTH);
+		this.add(scroll, BorderLayout.CENTER);
 		this.add(actionArea, BorderLayout.SOUTH);
+		writingarea.requestFocusInWindow();
 	}
 	  
 	public static void main(String[] args) {
@@ -110,11 +128,13 @@ public class ClientGraphics extends JFrame implements ChatIF, ActionListener, Ke
 	@Override
 	public void display(String message) {
 		// TODO Auto-generated method stub
-		JLabel msg = new JLabel(message);
+		JLabel msg = new JLabel("<html><p>"+ message+"</p></html");
+		msg.setMaximumSize(new Dimension(windowWidth, 15));
 		msg.setBorder(BorderFactory.createLineBorder(Color.black));
-		messageArea.add(msg, BorderLayout.SOUTH);
-		System.out.println(displayArea.getHeight());
+		displayArea.add(msg);
 		this.validate();
+		JScrollBar vertical = scroll.getVerticalScrollBar();
+		vertical.setValue( vertical.getMaximum() );
 	}
 	
 	public void handleMessageFromWritingArea() {
@@ -126,7 +146,27 @@ public class ClientGraphics extends JFrame implements ChatIF, ActionListener, Ke
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		// TODO Auto-generated method stub
-		this.handleMessageFromWritingArea();
+		String commande = arg0.getActionCommand();
+		switch(commande) {
+			case ToolsBar.CONNECTION:
+				JTextArea aPseudo = toolsBar.getPseudoArea();
+				String pseudo = aPseudo.getText();
+				client.handleMessageFromClientUI("#login " + pseudo);
+				aPseudo.setText("");
+				break;
+			case ToolsBar.DISCONNECTION:
+				client.handleMessageFromClientUI("#logoff");
+				break;
+			case ToolsBar.PORT:
+				client.handleMessageFromClientUI("#getport");
+				break;
+			case ToolsBar.HOST:
+				client.handleMessageFromClientUI("#gethost");
+				break;
+			default:
+				this.handleMessageFromWritingArea();
+				break;
+		}
 	}
 
 	@Override
@@ -146,6 +186,19 @@ public class ClientGraphics extends JFrame implements ChatIF, ActionListener, Ke
 		// TODO Auto-generated method stub
 		if(arg0.getKeyChar() == KeyEvent.VK_ENTER) {
 			this.handleMessageFromWritingArea();
+		}
+	}
+
+	@Override
+	public void handleCodeResponse(int code) {
+		// TODO Auto-generated method stub
+		switch(code) {
+			case 1:
+				this.setTitle(this.getTitle() + " (Connecté)");
+				break;
+			case 2:
+				this.setTitle("SimpleChat (Déconnecté)");
+				break;
 		}
 	}
 
