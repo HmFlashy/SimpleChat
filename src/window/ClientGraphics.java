@@ -1,7 +1,6 @@
 package window;
 
 import java.awt.BorderLayout;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -15,6 +14,7 @@ import java.io.IOException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -158,7 +158,7 @@ public class ClientGraphics extends JFrame implements ChatIF, ActionListener, Ke
 				client.handleMessageFromClientUI("#logoff");
 				break;
 			case ToolsBar.PORT:
-				client.handleMessageFromClientUI("#getport");
+				client.handleMessageFromClientUI("#sethost");
 				break;
 			case ToolsBar.HOST:
 				client.handleMessageFromClientUI("#gethost");
@@ -195,9 +195,11 @@ public class ClientGraphics extends JFrame implements ChatIF, ActionListener, Ke
 		switch(code) {
 			case 1:
 				this.setTitle(this.getTitle() + " (Connecté)");
+				this.toolsBar.connected();
 				break;
 			case 2:
 				this.setTitle("SimpleChat (Déconnecté)");
+				this.toolsBar.disconnected();
 				break;
 		}
 	}

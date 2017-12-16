@@ -33,7 +33,7 @@ public class ToolsBar extends JPanel {
 		this.pseudo = new JLabel("Pseudo :");
 		this.credentialTextArea = new JTextArea();
 		this.credentialTextArea.getDocument().putProperty("filterNewlines", Boolean.TRUE);
-		this.connection = new JButton("OK");
+		this.connection = new JButton("Connexion");
 		this.connection.setActionCommand(ToolsBar.CONNECTION);
 		this.connection.addActionListener(this.frame);
 		this.disconnection = new JButton("X");
@@ -49,13 +49,30 @@ public class ToolsBar extends JPanel {
 		this.add(this.pseudo);
 		this.add(credentialTextArea);
 		this.add(this.connection);
-		this.add(this.disconnection);
 		this.add(this.getPort);
 		this.add(this.getHost);
 	}
 	
 	public JTextArea getPseudoArea() {
 		return this.credentialTextArea;
+	}
+
+	public void connected() {
+		this.remove(this.pseudo);
+		this.remove(this.credentialTextArea);
+		this.remove(this.connection);
+		this.add(this.disconnection, 0);
+		this.repaint();
+		this.revalidate();
+	}
+	
+	public void disconnected() {
+		this.remove(this.disconnection);
+		this.add(this.pseudo, 0);
+		this.add(this.credentialTextArea, 1);
+		this.add(this.connection, 2);
+		this.repaint();
+		this.revalidate();
 	}
 
 }
