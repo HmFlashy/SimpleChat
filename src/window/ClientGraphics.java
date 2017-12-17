@@ -3,7 +3,6 @@ package window;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -14,18 +13,16 @@ import java.io.IOException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
 import client.ChatClient;
 import common.ChatIF;
-import component.ToolsBar;
+import component.ClientToolBar;
 
 public class ClientGraphics extends JFrame implements ChatIF, ActionListener, KeyListener {
 
@@ -47,16 +44,11 @@ public class ClientGraphics extends JFrame implements ChatIF, ActionListener, Ke
 	  ChatClient client;
 	  int windowHeight, windowWidth;
 	  
-	  /**
-	   * Graphics component
-	   */
-	  FlowLayout layout;
-	  JTextArea writingarea;
-	  JPanel displayArea, actionArea;
-	  JTextField textarea;
-	  JButton sendButton;
-	  JScrollPane scroll;
-	  ToolsBar toolsBar;
+	  private JTextArea writingarea;
+	  private JPanel displayArea, actionArea;
+	  private JButton sendButton;
+	  private JScrollPane scroll;
+	  private ClientToolBar toolsBar;
 	  
 	
 	public ClientGraphics(String host, int port) {
@@ -86,7 +78,7 @@ public class ClientGraphics extends JFrame implements ChatIF, ActionListener, Ke
 	}
 	
 	private void initComponents() {
-		toolsBar = new ToolsBar(this);
+		toolsBar = new ClientToolBar(this);
 		actionArea = new JPanel(new BorderLayout());
 		displayArea = new JPanel(new GridLayout(0,1, 0, 2));
 		scroll = new JScrollPane(displayArea);
@@ -147,20 +139,21 @@ public class ClientGraphics extends JFrame implements ChatIF, ActionListener, Ke
 	public void actionPerformed(ActionEvent arg0) {
 		// TODO Auto-generated method stub
 		String commande = arg0.getActionCommand();
+		
 		switch(commande) {
-			case ToolsBar.CONNECTION:
+			case ClientToolBar.CONNECTION:
 				JTextArea aPseudo = toolsBar.getPseudoArea();
 				String pseudo = aPseudo.getText();
 				client.handleMessageFromClientUI("#login " + pseudo);
 				aPseudo.setText("");
 				break;
-			case ToolsBar.DISCONNECTION:
+			case ClientToolBar.DISCONNECTION:
 				client.handleMessageFromClientUI("#logoff");
 				break;
-			case ToolsBar.PORT:
+			case ClientToolBar.GETPORT:
 				client.handleMessageFromClientUI("#getport");
 				break;
-			case ToolsBar.HOST:
+			case ClientToolBar.GETHOST:
 				client.handleMessageFromClientUI("#gethost");
 				break;
 			default:
@@ -190,11 +183,11 @@ public class ClientGraphics extends JFrame implements ChatIF, ActionListener, Ke
 	}
 
 	@Override
-	public void handleCodeResponse(int code) {
+	public void handleCode(int code) {
 		// TODO Auto-generated method stub
 		switch(code) {
 			case 1:
-				this.setTitle(this.getTitle() + " (Connecté)");
+				this.setTitle("SimpleChat (Connecté)");
 				this.toolsBar.connected();
 				break;
 			case 2:

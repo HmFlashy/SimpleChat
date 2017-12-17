@@ -1,8 +1,11 @@
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
+import common.ChatIF;
 import server.EchoServer;
 
-public class ServerConsole {
+public class ServerConsole implements ChatIF {
 
 	  /**
 	   * The default port to listen on.
@@ -12,7 +15,7 @@ public class ServerConsole {
 	EchoServer es;
 	
 	public ServerConsole(int port){
-	    es = new EchoServer(port);
+	    es = new EchoServer(port, this);
         try {
 			es.getObs().listen();
 		} catch (IOException e) {
@@ -64,4 +67,16 @@ public class ServerConsole {
 	    ServerConsole sc = new ServerConsole(port);
 	    sc.console();
 	  }
+
+	@Override
+	public void display(String message) {
+		// TODO Auto-generated method stub
+		System.out.println(message);
+	}
+
+	@Override
+	public void handleCode(int code) {
+		// TODO Auto-generated method stub
+		
+	}
 }

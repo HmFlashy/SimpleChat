@@ -10,44 +10,50 @@ import javax.swing.JTextArea;
 
 import window.ClientGraphics;
 
-public class ToolsBar extends JPanel {
+public class ClientToolBar extends JPanel {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	JTextArea credentialTextArea;
-	JLabel pseudo;
-	JButton disconnection, connection, getPort, getHost;
-	ClientGraphics frame;
+	private JTextArea credentialTextArea, hostTextArea, portTextArea;
+	private JLabel pseudo;
+	private JButton disconnection, connection, getPort, getHost;
+	private ClientGraphics frame;
 	
 	public static final String CONNECTION = "connection";
 	public static final String DISCONNECTION = "disconnection";
-	public static final String PORT = "port";
-	public static final String HOST = "host";
+	public static final String GETPORT = "getport";
+	public static final String GETHOST = "gethost";
+	public static final String SETPORT = "setport";
+	public static final String SETHOST = "sethost";
 	
-	public ToolsBar(ClientGraphics frame) {
+	public ClientToolBar(ClientGraphics frame) {
 		super(new GridLayout(1, 0));
 		this.frame = frame;
 		this.pseudo = new JLabel("Pseudo :");
 		this.credentialTextArea = new JTextArea();
 		this.credentialTextArea.getDocument().putProperty("filterNewlines", Boolean.TRUE);
+		
 		this.connection = new JButton("Connexion");
-		this.connection.setActionCommand(ToolsBar.CONNECTION);
+		this.connection.setActionCommand(ClientToolBar.CONNECTION);
 		this.connection.addActionListener(this.frame);
+		
 		this.disconnection = new JButton("X");
-		this.disconnection.setActionCommand(ToolsBar.DISCONNECTION);
+		this.disconnection.setActionCommand(ClientToolBar.DISCONNECTION);
 		this.disconnection.addActionListener(this.frame);
+		
 		this.getPort = new JButton("Port");
-		this.getPort.setActionCommand(ToolsBar.PORT);
+		this.getPort.setActionCommand(ClientToolBar.GETPORT);
 		this.getPort.addActionListener(this.frame);
+		
 		this.getHost = new JButton("Host");
-		this.getHost.setActionCommand(ToolsBar.HOST);
+		this.getHost.setActionCommand(ClientToolBar.GETHOST);
 		this.getHost.addActionListener(this.frame);
-		this.setSize(new Dimension(500, 50));
+		
 		this.add(this.pseudo);
-		this.add(credentialTextArea);
+		this.add(this.credentialTextArea);
 		this.add(this.connection);
 		this.add(this.getPort);
 		this.add(this.getHost);
