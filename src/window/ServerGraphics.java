@@ -11,6 +11,7 @@ import java.io.IOException;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollBar;
 
 import common.ChatIF;
@@ -42,14 +43,6 @@ public class ServerGraphics extends JFrame implements ChatIF, ActionListener {
 	
 	public ServerGraphics(int port) {
 		es = new EchoServer(port, this);
-		try {
-			es.getObs().listen();
-		} catch (IOException e) {
-		    System.out.println("ERROR - Could not listen for clients!");
-		}
-	}
-	
-	public void listen(){
 		try {
 			es.getObs().listen();
 		} catch (IOException e) {
@@ -126,6 +119,26 @@ public class ServerGraphics extends JFrame implements ChatIF, ActionListener {
 			case ServerToolBar.STOP:
 				es.handleMessageFromAdmin("#stop");
 				this.display("Server stoping");
+				break;
+			case ServerToolBar.SETPORT:
+				String s = (String)JOptionPane.showInputDialog(
+	                    this,
+	                    "Port :",
+	                    "Changer de port",
+	                    JOptionPane.PLAIN_MESSAGE,
+	                    null,
+	                    null,
+	                    String.valueOf(es.getPort())
+						);
+				if(s != null) {
+					es.handleMessageFromAdmin("#setport " + s);
+				}
+				break;
+			case ServerToolBar.GETPORT:
+				es.handleMessageFromAdmin("#getport");
+				break;
+			case ServerToolBar.CLOSE:
+				es.handleMessageFromAdmin("#close");
 				break;
 		}
 		

@@ -20,6 +20,7 @@ public class DisplayChatArea extends JScrollPane {
 	private JPanel displayArea;
 	
 	public DisplayChatArea(JFrame window) {
+		this.window = window;
 		displayArea = new JPanel(new GridLayout(0,1, 0, 2));
 		this.setViewportView(displayArea);
 		this.setMaximumSize(new Dimension(500, 450));
@@ -32,5 +33,4 @@ public class DisplayChatArea extends JScrollPane {
 		JScrollBar vertical = this.getVerticalScrollBar();
 		vertical.setValue( vertical.getMaximum() );
 	}
-
 }

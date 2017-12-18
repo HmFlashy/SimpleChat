@@ -15,6 +15,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
@@ -23,6 +24,7 @@ import javax.swing.JTextArea;
 import client.ChatClient;
 import common.ChatIF;
 import component.ClientToolBar;
+import component.DisplayChatArea;
 
 public class ClientGraphics extends JFrame implements ChatIF, ActionListener, KeyListener {
 
@@ -45,9 +47,9 @@ public class ClientGraphics extends JFrame implements ChatIF, ActionListener, Ke
 	  int windowHeight, windowWidth;
 	  
 	  private JTextArea writingarea;
+	  private DisplayChatArea displayChatArea;
 	  private JPanel displayArea, actionArea;
 	  private JButton sendButton;
-	  private JScrollPane scroll;
 	  private ClientToolBar toolsBar;
 	  
 	
@@ -80,10 +82,7 @@ public class ClientGraphics extends JFrame implements ChatIF, ActionListener, Ke
 	private void initComponents() {
 		toolsBar = new ClientToolBar(this);
 		actionArea = new JPanel(new BorderLayout());
-		displayArea = new JPanel(new GridLayout(0,1, 0, 2));
-		scroll = new JScrollPane(displayArea);
-		scroll.setMaximumSize(new Dimension(500, 450));
-        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		displayChatArea = new DisplayChatArea(this);
 		writingarea = new JTextArea(1, 34);
 		writingarea.setBorder(BorderFactory.createLineBorder(Color.black));
 		sendButton = new JButton("Envoyer");
@@ -92,7 +91,7 @@ public class ClientGraphics extends JFrame implements ChatIF, ActionListener, Ke
 		actionArea.add(writingarea, BorderLayout.CENTER);
 		actionArea.add(sendButton, BorderLayout.EAST);
 		this.add(toolsBar, BorderLayout.NORTH);
-		this.add(scroll, BorderLayout.CENTER);
+		this.add(displayChatArea, BorderLayout.CENTER);
 		this.add(actionArea, BorderLayout.SOUTH);
 		writingarea.requestFocusInWindow();
 	}
@@ -120,18 +119,24 @@ public class ClientGraphics extends JFrame implements ChatIF, ActionListener, Ke
 	@Override
 	public void display(String message) {
 		// TODO Auto-generated method stub
-		JLabel msg = new JLabel("<html><p>"+ message+"</p></html");
-		msg.setMaximumSize(new Dimension(windowWidth, 15));
-		msg.setBorder(BorderFactory.createLineBorder(Color.black));
-		displayArea.add(msg);
-		this.validate();
-		JScrollBar vertical = scroll.getVerticalScrollBar();
-		vertical.setValue( vertical.getMaximum() );
+			JLabel msg = new JLabel("<html><p>"+ message+"</p></html");
+			msg.setMaximumSize(new Dimension(windowWidth, 15));
+			msg.setBorder(BorderFactory.createLineBorder(Color.black));
+			displayChatArea.addMessage(msg);
 	}
 	
 	public void handleMessageFromWritingArea() {
 		String message = this.writingarea.getText();
-		client.handleMessageFromClientUI(message);
+		if(message.endsWith("\n")) {
+			message = message.substring(0, message.length()-1);
+		}
+		if(!message.equals("")) {
+			client.handleMessageFromClientUI(message);
+			this.writingarea.setText("");
+			writingarea.setBackground(Color.white);
+		} else {
+			writingarea.setBackground(Color.red);
+		}
 		this.writingarea.setText("");
 	}
 
@@ -139,7 +144,6 @@ public class ClientGraphics extends JFrame implements ChatIF, ActionListener, Ke
 	public void actionPerformed(ActionEvent arg0) {
 		// TODO Auto-generated method stub
 		String commande = arg0.getActionCommand();
-		
 		switch(commande) {
 			case ClientToolBar.CONNECTION:
 				JTextArea aPseudo = toolsBar.getPseudoArea();
@@ -152,6 +156,20 @@ public class ClientGraphics extends JFrame implements ChatIF, ActionListener, Ke
 				break;
 			case ClientToolBar.GETPORT:
 				client.handleMessageFromClientUI("#getport");
+				break;
+			case ClientToolBar.SETPORT:
+				String s = (String)JOptionPane.showInputDialog(
+	                    this,
+	                    "Port :",
+	                    "Changer de port",
+	                    JOptionPane.PLAIN_MESSAGE,
+	                    null,
+	                    null,
+	                    String.valueOf(client.getPort())
+						);
+				if(s != null) {
+					client.handleMessageFromClientUI("#setport " + s);
+				}
 				break;
 			case ClientToolBar.GETHOST:
 				client.handleMessageFromClientUI("#gethost");

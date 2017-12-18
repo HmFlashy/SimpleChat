@@ -1,8 +1,9 @@
 package component;
 
-import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Image;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -19,7 +20,7 @@ public class ClientToolBar extends JPanel {
 	
 	private JTextArea credentialTextArea, hostTextArea, portTextArea;
 	private JLabel pseudo;
-	private JButton disconnection, connection, getPort, getHost;
+	private JButton disconnection, connection, getPort, getHost, setPort, setHost;
 	private ClientGraphics frame;
 	
 	public static final String CONNECTION = "connection";
@@ -48,15 +49,32 @@ public class ClientToolBar extends JPanel {
 		this.getPort.setActionCommand(ClientToolBar.GETPORT);
 		this.getPort.addActionListener(this.frame);
 		
-		this.getHost = new JButton("Host");
+		this.getHost = new JButton("Hôte");
 		this.getHost.setActionCommand(ClientToolBar.GETHOST);
 		this.getHost.addActionListener(this.frame);
+		
+		JPanel port = new JPanel(new GridLayout(1, 0));
+		JPanel hote = new JPanel(new GridLayout(1, 0));
+		
+		ImageIcon modifyIcon = new ImageIcon(new ImageIcon("../assets/modify.png").getImage().getScaledInstance(20, 20, Image.SCALE_DEFAULT));
+		
+		this.setPort = new JButton(modifyIcon);
+		this.setPort.setActionCommand(ClientToolBar.SETPORT);
+		this.setPort.addActionListener(this.frame);
+		
+		this.setHost = new JButton(modifyIcon);
+		this.setHost.setActionCommand(ClientToolBar.SETHOST);
+		this.setHost.addActionListener(this.frame);
+		port.add(this.getPort);
+		port.add(this.setPort);
+		hote.add(this.getHost);
+		hote.add(this.setHost);
 		
 		this.add(this.pseudo);
 		this.add(this.credentialTextArea);
 		this.add(this.connection);
-		this.add(this.getPort);
-		this.add(this.getHost);
+		this.add(port);
+		this.add(hote);
 	}
 	
 	public JTextArea getPseudoArea() {
