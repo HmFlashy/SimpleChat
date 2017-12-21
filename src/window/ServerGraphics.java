@@ -6,20 +6,20 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JScrollBar;
 
 import common.ChatIF;
+import component.ActionWritingArea;
 import component.DisplayChatArea;
+import component.Message;
 import component.ServerToolBar;
 import server.EchoServer;
 
-public class ServerGraphics extends JFrame implements ChatIF, ActionListener {
+public class ServerGraphics extends JFrame implements ChatIF, ActionListener, KeyListener {
 
 	/**
 	 * 
@@ -40,31 +40,42 @@ public class ServerGraphics extends JFrame implements ChatIF, ActionListener {
 	private ServerToolBar toolBar;
 
 	private DisplayChatArea displayChatArea;
+
+	private ActionWritingArea actionArea;
 	
 	public ServerGraphics(int port) {
 		es = new EchoServer(port, this);
-		try {
-			es.getObs().listen();
-		} catch (IOException e) {
-		    System.out.println("ERROR - Could not listen for clients!");
-		}
 	}
 
 	@Override
 	public void display(String message) {
 		// TODO Auto-generated method stub
-		JLabel msg = new JLabel("<html><p>"+ message+"</p></html");
-		msg.setMaximumSize(new Dimension(windowWidth, 15));
-		msg.setBorder(BorderFactory.createLineBorder(Color.black));
+		Message msg = new Message("<html><p>"+ message+"</p></html");
 		this.displayChatArea.addMessage(msg);
 	}
 
 	@Override
 	public void handleCode(int code) {
-		// TODO Auto-generated method stub
-
+		switch(code) {
+			case 1:
+				this.setTitle("SimpleChat (Running)");
+				this.toolBar.started();
+				break;
+			case 2:
+				this.setTitle("SimpleChat (Offline)");
+				this.toolBar.stopped();
+				break;
+			case 3:
+				this.setTitle("SimpleChat (Stop)");
+				this.toolBar.closed();
+				break;
+		}
 	}
 	
+	/**
+	 * 
+	 * @param args
+	 */
 	public static void main(String args[]) {
 		int port = 0; //Port to listen on
 
@@ -81,17 +92,26 @@ public class ServerGraphics extends JFrame implements ChatIF, ActionListener {
 	    sc.initWindow();
 	    sc.initComponents();
 	    sc.setVisible(true);
+	    sc.display("Bienvenue sur SimpleChat4 ! \nPour lancer le serveur, appuyer sur Start.");
 	}
 
+	/**
+	 * 
+	 */
 	private void initComponents() {
 		// TODO Auto-generated method stub
 		this.toolBar = new ServerToolBar(this);
 		this.displayChatArea = new DisplayChatArea(this);
+		this.actionArea = new ActionWritingArea(this, this);
 		this.add(toolBar, BorderLayout.NORTH);
 		this.add(displayChatArea, BorderLayout.CENTER);
+		this.add(actionArea, BorderLayout.SOUTH);
 		
 	}
 
+	/**
+	 * 
+	 */
 	private void initWindow() {
 		// TODO Auto-generated method stub
 		Toolkit tk = Toolkit.getDefaultToolkit(); 
@@ -100,7 +120,7 @@ public class ServerGraphics extends JFrame implements ChatIF, ActionListener {
 		int largeurEcran = d.width; 
 		windowHeight = hauteurEcran/2;
 		windowWidth = largeurEcran/2;
-		setSize(windowWidth, windowHeight); 
+		this.setSize(windowWidth, windowHeight); 
 		this.setTitle("SimpleChat Server (Online)");
 		this.setResizable(false);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -110,7 +130,6 @@ public class ServerGraphics extends JFrame implements ChatIF, ActionListener {
 	public void actionPerformed(ActionEvent arg0) {
 		// TODO Auto-generated method stub
 		String commande = arg0.getActionCommand();
-		System.out.println(commande);
 		switch(commande) {
 			case ServerToolBar.START:
 				es.handleMessageFromAdmin("#start");
@@ -143,5 +162,44 @@ public class ServerGraphics extends JFrame implements ChatIF, ActionListener {
 		}
 		
 	}
+	
+	/**
+	 * Handle message from writing area
+	 */
+	public void handleMessageFromWritingArea() {
+		String message = this.actionArea.getText();
+		if(message.endsWith("\n")) {
+			message = message.substring(0, message.length()-1);
+		}
+		if(!message.equals("")) {
+			es.handleMessageFromAdmin(message);
+			this.actionArea.setText("");
+			this.actionArea.setColor(Color.white);
+		} else {
+			this.actionArea.setColor(Color.red);
+		}
+		this.actionArea.setText("");
+	}
+
+	@Override
+	public void keyPressed(KeyEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void keyReleased(KeyEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void keyTyped(KeyEvent arg0) {
+		// TODO Auto-generated method stub
+		if(arg0.getKeyChar() == KeyEvent.VK_ENTER) {
+			this.handleMessageFromWritingArea();
+		}
+	}
+
 
 }

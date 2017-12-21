@@ -53,9 +53,30 @@ public class ServerToolBar extends JPanel {
 		portPanel.add(this.setPort);
 		
 		this.add(startServer);
-		this.add(stopServer);
-		this.add(close);
 		this.add(portPanel);
+	}
+
+	public void started() {
+		this.removeAll();
+		this.add(this.stopServer, 0);
+		this.add(this.close, 1);
+		this.repaint();
+		this.revalidate();
+	}
+	
+	public void stopped() {
+		this.removeAll();
+		this.add(this.startServer, 0);
+		this.add(this.portPanel, 1);
+		this.repaint();
+		this.revalidate();
+	}
+
+	public void closed() {
+		this.remove(this.stopServer);
+		this.add(this.startServer, 0);
+		this.repaint();
+		this.revalidate();
 	}
 
 }

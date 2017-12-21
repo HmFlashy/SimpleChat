@@ -2,6 +2,7 @@ package component;
 
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.event.ActionListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -18,10 +19,10 @@ public class ClientToolBar extends JPanel {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private JTextArea credentialTextArea, hostTextArea, portTextArea;
+	private JTextArea credentialTextArea, hostTextArea;
 	private JLabel pseudo;
 	private JButton disconnection, connection, getPort, getHost, setPort, setHost;
-	private ClientGraphics frame;
+	private ActionListener listener;
 	
 	public static final String CONNECTION = "connection";
 	public static final String DISCONNECTION = "disconnection";
@@ -30,28 +31,28 @@ public class ClientToolBar extends JPanel {
 	public static final String SETPORT = "setport";
 	public static final String SETHOST = "sethost";
 	
-	public ClientToolBar(ClientGraphics frame) {
+	public ClientToolBar(ActionListener listener) {
 		super(new GridLayout(1, 0));
-		this.frame = frame;
+		this.listener = listener;
 		this.pseudo = new JLabel("Pseudo :");
 		this.credentialTextArea = new JTextArea();
 		this.credentialTextArea.getDocument().putProperty("filterNewlines", Boolean.TRUE);
 		
 		this.connection = new JButton("Connexion");
 		this.connection.setActionCommand(ClientToolBar.CONNECTION);
-		this.connection.addActionListener(this.frame);
+		this.connection.addActionListener(this.listener);
 		
 		this.disconnection = new JButton("X");
 		this.disconnection.setActionCommand(ClientToolBar.DISCONNECTION);
-		this.disconnection.addActionListener(this.frame);
+		this.disconnection.addActionListener(this.listener);
 		
 		this.getPort = new JButton("Port");
 		this.getPort.setActionCommand(ClientToolBar.GETPORT);
-		this.getPort.addActionListener(this.frame);
+		this.getPort.addActionListener(this.listener);
 		
 		this.getHost = new JButton("Hôte");
 		this.getHost.setActionCommand(ClientToolBar.GETHOST);
-		this.getHost.addActionListener(this.frame);
+		this.getHost.addActionListener(this.listener);
 		
 		JPanel port = new JPanel(new GridLayout(1, 0));
 		JPanel hote = new JPanel(new GridLayout(1, 0));
@@ -60,11 +61,11 @@ public class ClientToolBar extends JPanel {
 		
 		this.setPort = new JButton(modifyIcon);
 		this.setPort.setActionCommand(ClientToolBar.SETPORT);
-		this.setPort.addActionListener(this.frame);
+		this.setPort.addActionListener(this.listener);
 		
 		this.setHost = new JButton(modifyIcon);
 		this.setHost.setActionCommand(ClientToolBar.SETHOST);
-		this.setHost.addActionListener(this.frame);
+		this.setHost.addActionListener(this.listener);
 		port.add(this.getPort);
 		port.add(this.setPort);
 		hote.add(this.getHost);

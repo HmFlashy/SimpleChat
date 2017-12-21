@@ -3,7 +3,6 @@ package window;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,20 +10,18 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import client.ChatClient;
 import common.ChatIF;
+import component.ActionWritingArea;
 import component.ClientToolBar;
 import component.DisplayChatArea;
+import component.Message;
 
 public class ClientGraphics extends JFrame implements ChatIF, ActionListener, KeyListener {
 
@@ -46,13 +43,17 @@ public class ClientGraphics extends JFrame implements ChatIF, ActionListener, Ke
 	  ChatClient client;
 	  int windowHeight, windowWidth;
 	  
-	  private JTextArea writingarea;
 	  private DisplayChatArea displayChatArea;
-	  private JPanel displayArea, actionArea;
-	  private JButton sendButton;
+	  private ActionWritingArea actionArea;
 	  private ClientToolBar toolsBar;
 	  
-	
+	/**
+	 * 
+	 * Constructor of the ClientGraphics class
+	 * 
+	 * @param host
+	 * @param port
+	 */
 	public ClientGraphics(String host, int port) {
 		try 
 	    {
@@ -66,6 +67,9 @@ public class ClientGraphics extends JFrame implements ChatIF, ActionListener, Ke
 	    }
 	}
 	
+	/**
+	 * Set the default parameters for the window
+	 */
 	private void configWindow() {
 		Toolkit tk = Toolkit.getDefaultToolkit(); 
 		Dimension d = tk.getScreenSize(); 
@@ -75,27 +79,23 @@ public class ClientGraphics extends JFrame implements ChatIF, ActionListener, Ke
 		windowWidth = largeurEcran/2;
 		setSize(windowWidth, windowHeight); 
 		this.setTitle("SimpleChat");
-		this.setResizable(false);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
 	private void initComponents() {
 		toolsBar = new ClientToolBar(this);
-		actionArea = new JPanel(new BorderLayout());
+		actionArea = new ActionWritingArea(this, this);
 		displayChatArea = new DisplayChatArea(this);
-		writingarea = new JTextArea(1, 34);
-		writingarea.setBorder(BorderFactory.createLineBorder(Color.black));
-		sendButton = new JButton("Envoyer");
-		sendButton.addActionListener(this);
-		writingarea.addKeyListener(this);
-		actionArea.add(writingarea, BorderLayout.CENTER);
-		actionArea.add(sendButton, BorderLayout.EAST);
+		
 		this.add(toolsBar, BorderLayout.NORTH);
 		this.add(displayChatArea, BorderLayout.CENTER);
 		this.add(actionArea, BorderLayout.SOUTH);
-		writingarea.requestFocusInWindow();
 	}
-	  
+	
+	/**
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		String host = "";
 	    int port = 0;  //The port number
@@ -114,30 +114,32 @@ public class ClientGraphics extends JFrame implements ChatIF, ActionListener, Ke
 		chat.configWindow();
 		chat.initComponents();
 		chat.setVisible(true);
+	    chat.display("Bienvenue sur SimpleChat4 ! \nPour vous connecter rentrez votre pseudo et c'est parti !");
 	}
-
+	
 	@Override
 	public void display(String message) {
 		// TODO Auto-generated method stub
-			JLabel msg = new JLabel("<html><p>"+ message+"</p></html");
-			msg.setMaximumSize(new Dimension(windowWidth, 15));
-			msg.setBorder(BorderFactory.createLineBorder(Color.black));
+			Message msg = new Message("<html><p>"+ message+"</p></html");
 			displayChatArea.addMessage(msg);
 	}
 	
+	/**
+	 * Handle the message from the writing area
+	 */
 	public void handleMessageFromWritingArea() {
-		String message = this.writingarea.getText();
+		String message = this.actionArea.getText();
 		if(message.endsWith("\n")) {
 			message = message.substring(0, message.length()-1);
 		}
 		if(!message.equals("")) {
 			client.handleMessageFromClientUI(message);
-			this.writingarea.setText("");
-			writingarea.setBackground(Color.white);
+			this.actionArea.setText("");
+			this.actionArea.setColor(Color.white);
 		} else {
-			writingarea.setBackground(Color.red);
+			this.actionArea.setColor(Color.red);
 		}
-		this.writingarea.setText("");
+		this.actionArea.setText("");
 	}
 
 	@Override
@@ -174,6 +176,19 @@ public class ClientGraphics extends JFrame implements ChatIF, ActionListener, Ke
 			case ClientToolBar.GETHOST:
 				client.handleMessageFromClientUI("#gethost");
 				break;
+			case ClientToolBar.SETHOST:
+				String hote = (String)JOptionPane.showInputDialog(
+	                    this,
+	                    "Hôte :",
+	                    "Changer d'hôte",
+	                    JOptionPane.PLAIN_MESSAGE,
+	                    null,
+	                    null,
+	                    client.getHote()
+						);
+				if(hote != null) {
+					client.handleMessageFromClientUI("#sethost " + hote);
+				}
 			default:
 				this.handleMessageFromWritingArea();
 				break;
@@ -202,7 +217,6 @@ public class ClientGraphics extends JFrame implements ChatIF, ActionListener, Ke
 
 	@Override
 	public void handleCode(int code) {
-		// TODO Auto-generated method stub
 		switch(code) {
 			case 1:
 				this.setTitle("SimpleChat (Connecté)");
